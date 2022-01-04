@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="tick.css" />
+    <title>Tick Tack Toe</title>
+  </head>
+  <body>
+    <div id="container">
+      <h1 id="player-text" class="turn">Tick Tack Toe</h1>
+      <div id="frame">
+        <div id="strike" class=""></div>
+        <!-- ROW ONE -->
+        <div class="row" data-row="1">
+          <div data-button>
+            <div data-y-position="0" data-x-position="0" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="0" data-x-position="1" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="0" data-x-position="2" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW TWO -->
+        <div class="row" data-row="2">
+          <div data-button>
+            <div data-y-position="1" data-x-position="0" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="1" data-x-position="1" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="1" data-x-position="2" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROW THREE -->
+        <div class="row" data-row="3">
+          <div data-button>
+            <div data-y-position="2" data-x-position="0" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="2" data-x-position="1" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+          <div data-button>
+            <div data-y-position="2" data-x-position="2" class="display">
+              <span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="play-button" class="play">Play</button>
+    </div>
+    <script src="tickai.js"></script>
+  </body>
+</html>
