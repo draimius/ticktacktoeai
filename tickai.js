@@ -1,42 +1,156 @@
 "use strict";
 console.log("game on computer");
 
-//basically gonna use all logic had previously in other ticktacktoe
-//difference is that where player changed we'd call function or else
-//--access other structure where ai is that reads the current board values
-//--than decides where the optimal position to block or win the game would be
-//--and makes its move there (if done correctly
-//----we should never be able to win a game
-//---and computer should be able to win everytime the player makes a mistake we exploit it)
-//just thinking we'd have ai class structure with its maethod that lika i said reads if
-//--finds optiomal position (for block or win)
-//--explote player mistakes and never allow the player to win
+//ok so got ai delay workihg also got it the print to the board and matrix
+// all connected now as if real player (though still some bugs like if i wanted two could
+//--just take that ai turn by clicking fater then ai makes move
+//--so we want to temp diable the board of clicking while its ai's turn )
 
-//if the middle is avialible (always take the middle 1,1)
-//--thats always the fist move we aim to make if its not taken
-//we look for the usual winning patters but now instead of all three matching
-//--we are looking for any matching of two in pattern
-//---and is meets that we complete the pattern (blocking the player)
-//so we look to block first prevent player from winning
-//--if nothing meets the patter matching of two to block
-//Then instead we aim to complete our own of three
-//(NOTE: in blocking ai look for the two match but only of the value that does not correspond to itself)
+//finishe the colomn and diagonal check for bnlocks
+
+//then create ones looking for us to make the winning move(just though about it this should be priority
+//--as if we win game end there and thats it no need to even consider their next move)
+
+//then last case where their is nothing to block and no winnig move to make
 
 //Class for the AI
 class AI {
-  constructor() {}
-  checkRow() {}
-  checkColomn() {}
-  checkDiagonal() {}
-  searchForTwo(valueLookingFor) {
-    //we pass in the value looking for in the boardMatrix (aka the player value)
+  constructor() {
+    // this.delay = this.randomTime();
+    this.delay = 0;
   }
-  checkForBlock() {
-    //we run searchfortwo and find where
+  container(x, y, board) {
+    this.boardMatrix = board;
+    // console.log(board);
+    // console.log(y, x);
+    this.checkForBlock(x, y);
   }
-  checkForWiningMove() {
-    //check if we have
-    //thinking same in structure to refer to later as to not have to loop repeatedly through whole structure
+
+  checkForBlock(x, y) {
+    //store access to AI (interesting how delay does just fine)
+    let that = this;
+    //delay function execution
+    setTimeout(function () {
+      that.checkRow(x, y);
+      that.checkColomn(x, y);
+      that.checkDiagonal(x, y);
+    }, this.delay);
+  }
+
+  checkDiagonal(x, y) {
+    //center if opponen dosent have this no need to check anything else (aka if we own it no need to check this)
+    let mustMatch = this.boardMatrix[1][1];
+    //defualt to false swaps when its open and we fill it
+    let ownMiddle = false;
+    if (!ownMiddle) {
+      let topLeft = this.boardMatrix[0][0];
+      let topRight = this.boardMatrix[0][2];
+      let bottomLeft = this.boardMatrix[2][0];
+      let bottomRight = this.boardMatrix[2][2];
+      console.log(y, x);
+      console.log(mustMatch);
+      //if center is not already own we take it (and dont have to check for any pattern here to block as not possible)
+      if (mustMatch === undefined) {
+        //if center is open we want it
+        console.log("working???????");
+        this.pullSlot(1, 1);
+        ownMiddle = true;
+        return;
+      } else {
+        //this means that we dont own the center (aka opponen does)
+        if (topLeft !== undefined) {
+        }
+        if (topRight !== undefined) {
+        }
+        if (bottomLeft !== undefined) {
+        }
+        if (bottomRight !== undefined) {
+        }
+      }
+      let newY = y < 2 ? 2 : 0;
+      let newX = x < 2 ? 2 : 0;
+      //   console.log(newX, newY);
+      //   this.pullSlot(newX, newY);
+    }
+
+    //we'dpass in the the pullSlot the values of the contour of what was originaly passed
+  }
+
+  checkColomn(x, y) {
+    let value = this.boardMatrix[y][x];
+    console.log(value);
+    let matchCount = 0;
+    let isEmpty = false;
+    if (value !== undefined) {
+      for (let i = 0; i < 3; i++) {
+        let item = this.boardMatrix[i][x];
+        if (item === value) {
+          matchCount++;
+        }
+        if (item === undefined) {
+          isEmpty = i;
+        }
+      }
+      if (matchCount === 2 && isEmpty !== false) {
+        console.log("BLOCK IT");
+        this.pullSlot(Number(x), isEmpty);
+      }
+    }
+  }
+
+  checkRow(x, y) {
+    let rowCheck = this.boardMatrix[y];
+    let value = rowCheck[x];
+    let matchCount = 0;
+    let isEmpty = false;
+    if (value !== undefined) {
+      for (let i = 0; i < rowCheck.length; i++) {
+        let item = rowCheck[i];
+        if (item === value) {
+          matchCount++;
+        }
+        if (item === undefined) {
+          isEmpty = i;
+        }
+      }
+      if (matchCount === 2 && isEmpty !== false) {
+        console.log("BLOCK IT");
+        this.pullSlot(isEmpty, Number(y));
+      }
+    }
+  }
+
+  //=====================================================================================================
+  //=====================================================================================================
+  //UNIVARSAL TO LOOK FOR PATTERN OF TWO IN ALL FORMAT FOR EACH PLAYER (FOR BLOCK AND WIN)
+  //   searchForTwo(valueLookingFor) {
+  //     //we pass in the value looking for in the boardMatrix (aka the player value)
+  //     //use for all of the checks block or win
+  //   }
+  //   checkForWiningMove() {}
+  pullSlot(x, y) {
+    // can use the y value to know which row to look at
+    // console.log("running function or what");
+    let element;
+    console.log(y, x);
+    for (let i = 0; i < allSlots.length; i++) {
+      console.log(allSlots[i]);
+      if (allSlots[i].getAttribute("data-y-position") === String(y)) {
+        if (allSlots[i].getAttribute("data-x-position") === String(x)) {
+          console.log("working");
+          element = allSlots[i];
+          console.log(element);
+          board.printTurn(element);
+          board.addToBoard(element);
+          break;
+        }
+      }
+    }
+  }
+  randomTime() {
+    //want range to be from 1 to 4 seconds
+    return parseInt((Math.random() * (2 - 1) + 1) * 1000);
+    // console.log(this.delay);
   }
 }
 
@@ -61,7 +175,6 @@ class GameBoard {
   }
   //reset and variable, classed and value back to original
   gameReset(target) {
-    console.log(target);
     if (this.gameOver) {
       this.clearBoard();
       this.clearMatrix();
@@ -85,7 +198,7 @@ class GameBoard {
   printCurrentPlayer() {
     if (!this.gameOver) {
       if (!this.player) {
-        playerText.textContent = "O's Turn";
+        playerText.textContent = "Computer Turn";
       } else {
         playerText.textContent = "X's Turn";
       }
@@ -93,7 +206,7 @@ class GameBoard {
       if (!this.player) {
         playerText.textContent = "X's Won";
       } else {
-        playerText.textContent = "O's Won";
+        playerText.textContent = "Computer Won";
       }
     }
   }
@@ -109,6 +222,11 @@ class GameBoard {
           this.diagonalWin();
           this.printCurrentPlayer();
           this.noWin();
+
+          //only if switch player is this allowed to run
+          if (!this.player) {
+            ai.container(x, y, this.boardMatrix);
+          }
         }
       }
     }
@@ -218,7 +336,7 @@ class GameBoard {
     playButton.textContent = "play again";
     this.gameOver = true;
   }
-
+  //add value to the actual board matrix (Not Visual)
   printTurn(squareSelected) {
     let targetChildren = squareSelected.children;
     if (!this.gameOver) {
@@ -257,6 +375,8 @@ class GameBoard {
 
 //CREATE NEW GAME BOARD
 let board = new GameBoard();
+//CREATE NEW AI
+let ai = new AI();
 
 //ALL DOM VARIBLES
 let frame = document.querySelector("#frame");
@@ -264,6 +384,7 @@ let strike = document.querySelector("#strike");
 let playButton = document.querySelector("#play-button");
 let playerText = document.querySelector("#player-text");
 let allSpan = document.querySelectorAll("span");
+let allSlots = document.querySelectorAll("[data-y-position]");
 
 //ALL EVENT LISTENERS
 frame.addEventListener("click", function () {
@@ -278,3 +399,6 @@ playButton.addEventListener("click", function () {
   board.initiate();
   board.gameReset(event.target);
 });
+
+//thinkig copy basically the addtoBoard and the printTurn functions and fuctionality
+// so basically run these with the appropriate values passed through or applied
