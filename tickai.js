@@ -58,19 +58,14 @@ class AI {
         return;
       } else {
         //this means that we dont own the center (aka opponen does)
+        //so oppenent must own center and they muxt own one of the four courners
+        //---and that couners counterpart must be empty (aka value of undefined) (must be empty for us to fill)
         if (topLeft !== undefined) {
-        }
-        if (topRight !== undefined) {
-        }
-        if (bottomLeft !== undefined) {
-        }
-        if (bottomRight !== undefined) {
+        } else if (topRight !== undefined) {
+        } else if (bottomLeft !== undefined) {
+        } else if (bottomRight !== undefined) {
         }
       }
-      let newY = y < 2 ? 2 : 0;
-      let newX = x < 2 ? 2 : 0;
-      //   console.log(newX, newY);
-      //   this.pullSlot(newX, newY);
     }
 
     //we'dpass in the the pullSlot the values of the contour of what was originaly passed
