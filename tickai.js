@@ -1,13 +1,10 @@
 "use strict";
 console.log("game on, computer");
 
-//big thing i need to do is diable the board while its the computers turn
-
 //Class for the AI
 class AI {
   constructor() {
-    this.delay = this.randomTime();
-    // this.delay = 0;
+    this.delay = 100;
     this.ownCenter = false;
   }
   container(x, y, board) {
@@ -38,18 +35,14 @@ class AI {
   }
 
   checkDiagonal(x, y) {
-    //we check if its the correct players turn (check on all block checks to prevent more then one running each turn)
     if (!board.player) {
       let mustMatch = this.boardMatrix[1][1];
-      //we check if we already own the center if so short circut
       if (this.ownCenter) {
         return;
-        //we check if the center is open for us to take if so we take it
       } else if (mustMatch === undefined) {
         this.pullSlot(1, 1);
         this.ownCenter = true;
         return;
-        //if here mean opponent owns center and we check for opponenet own corners and empty corners
       } else {
         if (
           this.boardMatrix[0][0] === undefined &&
@@ -137,16 +130,7 @@ class AI {
       }
     }
   }
-
-  randomTime() {
-    return parseInt((Math.random() * (3 - 2) + 1) * 1000);
-  }
-  //dont like one bit we used nested loop but ok for time beign (lets gett working then re factor)
-  checkRowWin(x, y) {
-    //very simple
-    //if its my turn
-    //and we have two in a row
-    //we fill it nothing else nothing less
+  checkRowWin() {
     if (!board.player) {
       for (let i = 0; i < this.boardMatrix.length; i++) {
         let matchCount = 0;
@@ -168,7 +152,6 @@ class AI {
     return;
   }
   checkColomnWin() {
-    //we know should only happen when its our turn
     if (!board.player) {
       for (let i = 0; i < this.boardMatrix.length; i++) {
         let matchCount = 0;
@@ -191,7 +174,6 @@ class AI {
   }
   checkDiagonalWin() {
     if (!board.player) {
-      //we must own the center otherwise no point in checking this
       if (this.boardMatrix[1][1] === 0) {
         let mustMatch = 0;
         if (
@@ -219,15 +201,9 @@ class AI {
     }
     return;
   }
-  //=====================================================================================================
 
   elseMove() {
-    //thing is we want it to be dynamic
-    //   (thinking using the hash would have been way better could have just check sever dif combos in constant time)
-    //vs with all arrays n time (though not really time intesive still want to optimize it)
-    //we check if its our turn
     if (!board.player) {
-      //in the event we dont one the center then we want to take only of the edges
       if (this.boardMatrix[1][1] === 1) {
         if (this.boardMatrix[0][0] === undefined) {
           this.pullSlot(0, 0);
@@ -239,9 +215,7 @@ class AI {
           this.pullSlot(2, 0);
         }
         return;
-      }
-      //only if i own center do i take cross (when dont block, center, or win) (aka to build a row of two)
-      else if (this.boardMatrix[1][1] === 0) {
+      } else if (this.boardMatrix[1][1] === 0) {
         if (this.boardMatrix[1][0] === undefined) {
           this.pullSlot(0, 1);
         } else if (this.boardMatrix[0][2] === undefined) {
@@ -253,7 +227,6 @@ class AI {
         }
         return;
       }
-
       for (let i = 0; i < this.boardMatrix.length; i++) {
         for (let j = 0; j < this.boardMatrix[i].length; j++) {
           if (this.boardMatrix[i][j] === undefined) {
@@ -265,19 +238,8 @@ class AI {
     }
     return;
   }
-  //=====================================================================================================
 }
 
-//-----
-//-----
-//-----
-//-----
-//-----
-//-----
-//-----
-//-----
-//-----
-//-----
 // Class for GameBoard
 class GameBoard {
   constructor() {
@@ -286,7 +248,6 @@ class GameBoard {
     this.player = 1;
     this.boardMatrix = [new Array(3), new Array(3), new Array(3)];
   }
-  //limit functionality till play button clicked
   initiate() {
     this.gameStarted = true;
     playerText.textContent = "Make your move";
@@ -297,18 +258,15 @@ class GameBoard {
       this.gameStarted = false;
     }
   }
-  //reset and variable, classed and value back to original
-  gameReset(target) {
+  gameReset() {
     if (this.gameOver) {
       this.clearBoard();
       this.clearMatrix();
     }
   }
-  //helper funciton to clear(create new) matrix board
   clearMatrix() {
     this.boardMatrix = [new Array(3), new Array(3), new Array(3)];
   }
-  //helper function clear classes of all spans and element displaying strike through
   clearBoard() {
     allSpan.forEach(function (span) {
       span.classList = "";
@@ -318,7 +276,6 @@ class GameBoard {
     this.gameStarted = true;
     this.player = 1;
   }
-  //display the winner and who's turn it is in text above board
   printCurrentPlayer() {
     if (!this.gameOver) {
       if (!this.player) {
@@ -340,21 +297,14 @@ class GameBoard {
         let x = element.getAttribute("data-x-position");
         let y = element.getAttribute("data-y-position");
         if (this.boardMatrix[y][x] === undefined) {
-          console.log(`player value before: ${this.player}`);
-          //we add to the matrix board then---
           this.boardMatrix[y][x] = this.player;
-          //we print to the ui then---
           this.printTurn(element);
-          //we check for the win
           this.checkForWin(x, y);
           this.printCurrentPlayer();
           if (!this.player) {
           }
           ai.container(x, y, this.boardMatrix);
-          //comes after to check if board if filled
           this.noWin();
-          console.log(`player value AFTER: ${this.player}`);
-          //   }
         }
       }
     }
@@ -469,7 +419,6 @@ class GameBoard {
     playButton.textContent = "play again";
     this.gameOver = true;
   }
-  //add value to the actual board matrix (Not Visual)
   printTurn(squareSelected) {
     let targetChildren = squareSelected.children;
     if (!this.gameOver) {
@@ -532,5 +481,8 @@ playButton.addEventListener("click", function () {
   board.gameReset(event.target);
 });
 
-//thinkig copy basically the addtoBoard and the printTurn functions and fuctionality
-// so basically run these with the appropriate values passed through or applied
+//NOTES:
+//still some small bug and thinking much better way to search and store value (hashtable) this way can just pull everything in
+//constant time and remember all values on board and dont have to search through whole thing or part of it for checks(???)
+//also could check different patterns/set up simpler i believe(refactored vertion in new version with added feature)
+//improve it all (want to make it 2 player actual online, you can send link to friend and play in real time)
