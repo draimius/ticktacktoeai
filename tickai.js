@@ -1,154 +1,283 @@
 "use strict";
-console.log("game on computer");
+console.log("game on, computer");
 
-//ok so got ai delay workihg also got it the print to the board and matrix
-// all connected now as if real player (though still some bugs like if i wanted two could
-//--just take that ai turn by clicking fater then ai makes move
-//--so we want to temp diable the board of clicking while its ai's turn )
-
-//finishe the colomn and diagonal check for bnlocks
-
-//then create ones looking for us to make the winning move(just though about it this should be priority
-//--as if we win game end there and thats it no need to even consider their next move)
-
-//then last case where their is nothing to block and no winnig move to make
+//big thing i need to do is diable the board while its the computers turn
 
 //Class for the AI
 class AI {
   constructor() {
-    // this.delay = this.randomTime();
-    this.delay = 0;
+    this.delay = this.randomTime();
+    // this.delay = 0;
+    this.ownCenter = false;
   }
   container(x, y, board) {
     this.boardMatrix = board;
-    // console.log(board);
-    // console.log(y, x);
+    this.checkForWiningMove(x, y);
     this.checkForBlock(x, y);
+    if (board.gameOver) {
+      this.ownCenter = false;
+    }
   }
 
   checkForBlock(x, y) {
-    //store access to AI (interesting how delay does just fine)
     let that = this;
-    //delay function execution
     setTimeout(function () {
       that.checkRow(x, y);
       that.checkColomn(x, y);
       that.checkDiagonal(x, y);
+      that.elseMove();
+    }, this.delay);
+  }
+  checkForWiningMove() {
+    let that = this;
+    setTimeout(function () {
+      that.checkRowWin();
+      that.checkColomnWin();
+      that.checkDiagonalWin();
     }, this.delay);
   }
 
   checkDiagonal(x, y) {
-    //center if opponen dosent have this no need to check anything else (aka if we own it no need to check this)
-    let mustMatch = this.boardMatrix[1][1];
-    //defualt to false swaps when its open and we fill it
-    let ownMiddle = false;
-    if (!ownMiddle) {
-      let topLeft = this.boardMatrix[0][0];
-      let topRight = this.boardMatrix[0][2];
-      let bottomLeft = this.boardMatrix[2][0];
-      let bottomRight = this.boardMatrix[2][2];
-      console.log(y, x);
-      console.log(mustMatch);
-      //if center is not already own we take it (and dont have to check for any pattern here to block as not possible)
-      if (mustMatch === undefined) {
-        //if center is open we want it
-        console.log("working???????");
-        this.pullSlot(1, 1);
-        ownMiddle = true;
+    //we check if its the correct players turn (check on all block checks to prevent more then one running each turn)
+    if (!board.player) {
+      let mustMatch = this.boardMatrix[1][1];
+      //we check if we already own the center if so short circut
+      if (this.ownCenter) {
         return;
+        //we check if the center is open for us to take if so we take it
+      } else if (mustMatch === undefined) {
+        this.pullSlot(1, 1);
+        this.ownCenter = true;
+        return;
+        //if here mean opponent owns center and we check for opponenet own corners and empty corners
       } else {
-        //this means that we dont own the center (aka opponen does)
-        //so oppenent must own center and they muxt own one of the four courners
-        //---and that couners counterpart must be empty (aka value of undefined) (must be empty for us to fill)
-        if (topLeft !== undefined) {
-        } else if (topRight !== undefined) {
-        } else if (bottomLeft !== undefined) {
-        } else if (bottomRight !== undefined) {
+        if (
+          this.boardMatrix[0][0] === undefined &&
+          this.boardMatrix[2][2] === mustMatch
+        ) {
+          this.pullSlot(0, 0);
+        } else if (
+          this.boardMatrix[2][0] === undefined &&
+          this.boardMatrix[0][2] === mustMatch
+        ) {
+          this.pullSlot(0, 2);
+        } else if (
+          this.boardMatrix[2][2] === undefined &&
+          this.boardMatrix[0][0] === mustMatch
+        ) {
+          this.pullSlot(2, 2);
+        } else if (
+          this.boardMatrix[0][2] === undefined &&
+          this.boardMatrix[2][0] === mustMatch
+        ) {
+          this.pullSlot(2, 0);
         }
       }
     }
-
-    //we'dpass in the the pullSlot the values of the contour of what was originaly passed
+    return;
   }
 
   checkColomn(x, y) {
-    let value = this.boardMatrix[y][x];
-    console.log(value);
-    let matchCount = 0;
-    let isEmpty = false;
-    if (value !== undefined) {
-      for (let i = 0; i < 3; i++) {
-        let item = this.boardMatrix[i][x];
-        if (item === value) {
-          matchCount++;
+    if (!board.player) {
+      let value = this.boardMatrix[y][x];
+      let matchCount = 0;
+      let isEmpty = false;
+      if (value !== undefined) {
+        for (let i = 0; i < 3; i++) {
+          let item = this.boardMatrix[i][x];
+          if (item === value) {
+            matchCount++;
+          }
+          if (item === undefined) {
+            isEmpty = i;
+          }
         }
-        if (item === undefined) {
-          isEmpty = i;
+        if (matchCount === 2 && isEmpty !== false) {
+          this.pullSlot(Number(x), isEmpty);
         }
-      }
-      if (matchCount === 2 && isEmpty !== false) {
-        console.log("BLOCK IT");
-        this.pullSlot(Number(x), isEmpty);
       }
     }
+    return;
   }
 
   checkRow(x, y) {
-    let rowCheck = this.boardMatrix[y];
-    let value = rowCheck[x];
-    let matchCount = 0;
-    let isEmpty = false;
-    if (value !== undefined) {
-      for (let i = 0; i < rowCheck.length; i++) {
-        let item = rowCheck[i];
-        if (item === value) {
-          matchCount++;
+    if (!board.player) {
+      let rowCheck = this.boardMatrix[y];
+      let value = rowCheck[x];
+      let matchCount = 0;
+      let isEmpty = false;
+      if (value !== undefined) {
+        for (let i = 0; i < rowCheck.length; i++) {
+          let item = rowCheck[i];
+          if (item === value) {
+            matchCount++;
+          }
+          if (item === undefined) {
+            isEmpty = i;
+          }
         }
-        if (item === undefined) {
-          isEmpty = i;
+        if (matchCount === 2 && isEmpty !== false) {
+          this.pullSlot(isEmpty, Number(y));
         }
-      }
-      if (matchCount === 2 && isEmpty !== false) {
-        console.log("BLOCK IT");
-        this.pullSlot(isEmpty, Number(y));
       }
     }
+    return;
   }
 
-  //=====================================================================================================
-  //=====================================================================================================
-  //UNIVARSAL TO LOOK FOR PATTERN OF TWO IN ALL FORMAT FOR EACH PLAYER (FOR BLOCK AND WIN)
-  //   searchForTwo(valueLookingFor) {
-  //     //we pass in the value looking for in the boardMatrix (aka the player value)
-  //     //use for all of the checks block or win
-  //   }
-  //   checkForWiningMove() {}
   pullSlot(x, y) {
-    // can use the y value to know which row to look at
-    // console.log("running function or what");
     let element;
-    console.log(y, x);
     for (let i = 0; i < allSlots.length; i++) {
-      console.log(allSlots[i]);
       if (allSlots[i].getAttribute("data-y-position") === String(y)) {
         if (allSlots[i].getAttribute("data-x-position") === String(x)) {
-          console.log("working");
           element = allSlots[i];
-          console.log(element);
-          board.printTurn(element);
           board.addToBoard(element);
-          break;
+          board.printTurn(element);
+          return;
         }
       }
     }
   }
+
   randomTime() {
-    //want range to be from 1 to 4 seconds
-    return parseInt((Math.random() * (2 - 1) + 1) * 1000);
-    // console.log(this.delay);
+    return parseInt((Math.random() * (3 - 2) + 1) * 1000);
   }
+  //dont like one bit we used nested loop but ok for time beign (lets gett working then re factor)
+  checkRowWin(x, y) {
+    //very simple
+    //if its my turn
+    //and we have two in a row
+    //we fill it nothing else nothing less
+    if (!board.player) {
+      for (let i = 0; i < this.boardMatrix.length; i++) {
+        let matchCount = 0;
+        let isEmpty = false;
+        for (let j = 0; j < this.boardMatrix[i].length; j++) {
+          let item = this.boardMatrix[i][j];
+          if (item === 0) {
+            matchCount++;
+          }
+          if (item === undefined) {
+            isEmpty = j;
+          }
+          if (matchCount === 2 && isEmpty !== false) {
+            this.pullSlot(isEmpty, i);
+          }
+        }
+      }
+    }
+    return;
+  }
+  checkColomnWin() {
+    //we know should only happen when its our turn
+    if (!board.player) {
+      for (let i = 0; i < this.boardMatrix.length; i++) {
+        let matchCount = 0;
+        let isEmpty = false;
+        for (let j = 0; j < this.boardMatrix[i].length; j++) {
+          let item = this.boardMatrix[j][i];
+          if (item === 0) {
+            matchCount++;
+          }
+          if (item === undefined) {
+            isEmpty = j;
+          }
+        }
+        if (matchCount === 2 && isEmpty !== false) {
+          this.pullSlot(i, isEmpty);
+        }
+      }
+    }
+    return;
+  }
+  checkDiagonalWin() {
+    if (!board.player) {
+      //we must own the center otherwise no point in checking this
+      if (this.boardMatrix[1][1] === 0) {
+        let mustMatch = 0;
+        if (
+          this.boardMatrix[0][0] === undefined &&
+          this.boardMatrix[2][2] === mustMatch
+        ) {
+          this.pullSlot(0, 0);
+        } else if (
+          this.boardMatrix[2][0] === undefined &&
+          this.boardMatrix[0][2] === mustMatch
+        ) {
+          this.pullSlot(0, 2);
+        } else if (
+          this.boardMatrix[2][2] === undefined &&
+          this.boardMatrix[0][0] === mustMatch
+        ) {
+          this.pullSlot(2, 2);
+        } else if (
+          this.boardMatrix[0][2] === undefined &&
+          this.boardMatrix[2][0] === mustMatch
+        ) {
+          this.pullSlot(2, 0);
+        }
+      }
+    }
+    return;
+  }
+  //=====================================================================================================
+
+  elseMove() {
+    //thing is we want it to be dynamic
+    //   (thinking using the hash would have been way better could have just check sever dif combos in constant time)
+    //vs with all arrays n time (though not really time intesive still want to optimize it)
+    //we check if its our turn
+    if (!board.player) {
+      //in the event we dont one the center then we want to take only of the edges
+      if (this.boardMatrix[1][1] === 1) {
+        if (this.boardMatrix[0][0] === undefined) {
+          this.pullSlot(0, 0);
+        } else if (this.boardMatrix[2][0] === undefined) {
+          this.pullSlot(0, 2);
+        } else if (this.boardMatrix[2][2] === undefined) {
+          this.pullSlot(2, 2);
+        } else if (this.boardMatrix[0][2] === undefined) {
+          this.pullSlot(2, 0);
+        }
+        return;
+      }
+      //only if i own center do i take cross (when dont block, center, or win) (aka to build a row of two)
+      else if (this.boardMatrix[1][1] === 0) {
+        if (this.boardMatrix[1][0] === undefined) {
+          this.pullSlot(0, 1);
+        } else if (this.boardMatrix[0][2] === undefined) {
+          this.pullSlot(1, 0);
+        } else if (this.boardMatrix[2][1] === undefined) {
+          this.pullSlot(1, 2);
+        } else if (this.boardMatrix[1][2] === undefined) {
+          this.pullSlot(2, 1);
+        }
+        return;
+      }
+
+      for (let i = 0; i < this.boardMatrix.length; i++) {
+        for (let j = 0; j < this.boardMatrix[i].length; j++) {
+          if (this.boardMatrix[i][j] === undefined) {
+            this.pullSlot(j, i);
+            return;
+          }
+        }
+      }
+    }
+    return;
+  }
+  //=====================================================================================================
 }
 
+//-----
+//-----
+//-----
+//-----
+//-----
+//-----
+//-----
+//-----
+//-----
+//-----
 // Class for GameBoard
 class GameBoard {
   constructor() {
@@ -211,20 +340,29 @@ class GameBoard {
         let x = element.getAttribute("data-x-position");
         let y = element.getAttribute("data-y-position");
         if (this.boardMatrix[y][x] === undefined) {
+          console.log(`player value before: ${this.player}`);
+          //we add to the matrix board then---
           this.boardMatrix[y][x] = this.player;
-          this.rowWin(x, y);
-          this.coloumnWin(x, y);
-          this.diagonalWin();
+          //we print to the ui then---
+          this.printTurn(element);
+          //we check for the win
+          this.checkForWin(x, y);
           this.printCurrentPlayer();
-          this.noWin();
-
-          //only if switch player is this allowed to run
           if (!this.player) {
-            ai.container(x, y, this.boardMatrix);
           }
+          ai.container(x, y, this.boardMatrix);
+          //comes after to check if board if filled
+          this.noWin();
+          console.log(`player value AFTER: ${this.player}`);
+          //   }
         }
       }
     }
+  }
+  checkForWin(x, y) {
+    this.rowWin(x, y);
+    this.coloumnWin(x, y);
+    this.diagonalWin();
   }
   noWin() {
     let winNotPossible = true;
@@ -385,7 +523,6 @@ let allSlots = document.querySelectorAll("[data-y-position]");
 frame.addEventListener("click", function () {
   if (board.gameStarted) {
     let target = event.target;
-    board.printTurn(target);
     board.addToBoard(target);
   }
 });
